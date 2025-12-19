@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ulang Tahun Interaktif</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:monospace;}
+body{background:#FFDDEE;display:flex;justify-content:center;align-items:center;height:100vh;overflow:hidden;}
+.hidden{display:none;}
+.container{text-align:center;position:relative;}
+.button{padding:10px 20px;cursor:pointer;border:none;border-radius:8px;background:#FF69B4;color:white;font-size:18px;margin-top:10px;}
+.input-field{padding:8px 12px;margin:10px 0;border-radius:6px;border:none;font-size:16px;}
+.text-area{font-size:22px;color:#FF1493;margin-top:20px;min-height:40px;white-space:pre-line;}
+.cursor{color:red;animation:blink 1s infinite;}
+.emoji{font-size:28px;margin-top:10px;display:inline-block;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+@keyframes clapBounce{0%,100%{transform:scale(1);}50%{transform:scale(1.5);}}
+.bounce{animation:clapBounce 0.5s ease-in-out 3;}
+</style>
+</head>
+<body>
+
+<!-- Step 0: MULAI -->
+<div class="container" id="step0">
+  <div class="button" id="startButton">MULAI 🎉</div>
+</div>
+
+<!-- Step 1: Aku ada hadiah buat kamu -->
+<div class="container hidden" id="step1">
+  <div class="text-area" id="typedText"></div><span class="cursor" id="cursor">|</span>
+  <div class="button" id="nextToName">Lanjut 🥰</div>
+</div>
+
+<!-- Step 2: Masukkan Nama -->
+<div class="container hidden" id="step2">
+  <div>Masukkan Nama:</div>
+  <input type="text" id="nameInput" class="input-field" placeholder="Nama kamu...">
+  <div class="button" id="nextName">Lanjut ♥️</div>
+</div>
+
+<!-- Step 3: Masukkan Umur -->
+<div class="container hidden" id="step3">
+  <div>Masukkan umur kamu yang sekarang:</div>
+  <input type="number" id="ageInput" class="input-field" placeholder="Umur kamu...">
+  <div class="button" id="nextAge">Lanjut 🎁</div>
+</div>
+
+<!-- Step 4: Ucapan Selamat dengan Audio -->
+<div class="container hidden" id="step4">
+  <audio id="birthdayAudio" src="lagu.mp3"></audio>
+  <div class="text-area" id="birthdayText"></div>
+  <span class="emoji hidden" id="clapEmoji">👏👏👏</span>
+  <div class="button hidden" id="nextWish">Lanjut 🎉</div>
+</div>
+
+<!-- Step 5: Keinginan Hadiah -->
+<div class="container hidden" id="step5">
+  <div>Ingin hadiah apa nih dari aku? 🥰</div>
+  <input type="text" id="wishInput" class="input-field" placeholder="Tulis keinginanmu...">
+  <div class="button" id="sendWish">Kirim ♥️🎁</div>
+</div>
+
+<script>
+// Step 0 → Step 1 (ngetik "Aku ada hadiah buat kamu")
+const startButton = document.getElementById("startButton");
+const step0 = document.getElementById("step0");
+const step1 = document.getElementById("step1");
+const typedText = document.getElementById("typedText");
+let message = "Aku ada hadiah buat kamu 🎁🥰";
+let index = 0;
+
+function typeMessage(){
+  if(index <= message.length){
+    typedText.textContent = message.slice(0,index++);
+    setTimeout(typeMessage,150);
+  }
+}
+
+startButton.addEventListener("click",()=>{
+  step0.classList.add("hidden");
+  step1.classList.remove("hidden");
+  typeMessage();
+});
+
+// Step 1 → Step 2
+document.getElementById("nextToName").addEventListener("click",()=>{
+  step1.classList.add("hidden");
+  document.getElementById("step2").classList.remove("hidden");
+});
+
+// Step 2 → Step 3
+document.getElementById("nextName").addEventListener("click",()=>{
+  const name = document.getElementById("nameInput").value.trim();
+  if(name!==""){
+    step2.classList.add("hidden");
+    step3.classList.remove("hidden");
+  }
+});
+
+// Step 3 → Step 4 (Ucapan Selamat + Tepuk Tangan + Audio)
+document.getElementById("nextAge").addEventListener("click",()=>{
+  const age = document.getElementById("ageInput").value.trim();
+  const name = document.getElementById("nameInput").value.trim();
+  if(age!==""){
+    step3.classList.add("hidden");
+    step4.classList.remove("hidden");
+
+    // Putar audio
+    const audio = document.getElementById("birthdayAudio");
+    audio.play();
+
+    // Efek ngetik ucapan ulang tahun
+    const birthdayMessage = `Selamat ulang tahun ${name} moga panjang umur ya ♥️\nAku ingat ulang tahunmu kok 🎉`;
+    let idx = 0;
+    const textArea = document.getElementById("birthdayText");
+    const nextBtn = document.getElementById("nextWish");
+    const clapEmoji = document.getElementById("clapEmoji");
+    nextBtn.classList.add("hidden");
+    clapEmoji.classList.add("hidden");
+
+    function typeBirthday(){
+      if(idx <= birthdayMessage.length){
+        textArea.textContent = birthdayMessage.slice(0, idx++);
+        setTimeout(typeBirthday, 100);
+      } else {
+        nextBtn.classList.remove("hidden");
+        clapEmoji.classList.remove("hidden");
+        clapEmoji.classList.add("bounce");
+      }
+    }
+    typeBirthday();
+  }
+});
+
+// Step 4 → Step 5
+document.getElementById("nextWish").addEventListener("click",()=>{
+  step4.classList.add("hidden");
+  step5.classList.remove("hidden");
+});
+
+// Step 5 → Kirim via WhatsApp
+document.getElementById("sendWish").addEventListener("click",()=>{
+  const wish = document.getElementById("wishInput").value.trim();
+  const name = document.getElementById("nameInput").value.trim();
+  if(wish!==""){
+    const text = encodeURIComponent(`Aku ingin ${wish} dari ${name} ♥️🎁🥰`);
+    const waLink = `https://wa.me/6283141285734?text=${text}`;
+    window.open(waLink, "_blank");
+    step5.classList.add("hidden");
+    document.body.innerHTML="<div style='text-align:center;margin-top:200px;font-size:24px;color:#FF1493;'>Sedang membuka WhatsApp... 🎉</div>";
+  }
+});
+</script>
+
+</body>
+</html>
